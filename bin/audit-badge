@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+const {parseArgs, main} = require('../src/audit-badge')
+parseArgs(main)

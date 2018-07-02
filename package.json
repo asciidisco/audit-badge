@@ -1,0 +1,70 @@
+{
+  "name": "audit-badge",
+  "version": "1.0.0",
+  "description": "Generates an npm audit badge",
+  "main": "index.js",
+  "bin": {
+    "audit-badge": "bin/audit-badge"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "standard --verbose | snazzy",
+    "cz": "git-cz",
+    "commitmsg": "commitlint -e $GIT_PARAMS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asciidisco/audit-badge.git"
+  },
+  "keywords": [
+    "audit",
+    "badge"
+  ],
+  "author": "Sebastian Golasch <public@asciidisco.com> (https://asciidisco.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/asciidisco/audit-badge/issues"
+  },
+  "homepage": "https://github.com/asciidisco/audit-badge#readme",
+  "devDependencies": {
+    "@commitlint/cli": "7.0.0",
+    "@commitlint/config-conventional": "7.0.1",
+    "@commitlint/prompt": "7.0.0",
+    "commitizen": "2.10.1",
+    "ghooks": "2.0.4",
+    "jest": "23.2.0",
+    "snazzy": "7.1.1",
+    "standard": "11.0.1"
+  },
+  "dependencies": {
+    "badge-up": "2.3.0",
+    "commander": "2.16.0",
+    "npm-auditor": "1.1.1"
+  },
+  "standard": {
+    "env": {
+      "jest": true
+    }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "./report/coverage"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run lint",
+      "commit-msg": "npm run commitmsg",
+      "pre-push": "npm test",
+      "post-merge": "npm install",
+      "post-rewrite": "npm install"
+    }
+  }
+}
