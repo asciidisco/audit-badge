@@ -37,15 +37,16 @@ function reportToTerminal (err, report) {
 }
 
 function parseArgs (cb) {
-  program
+  const commandProgram = program
     .command('audit-badge')
     .version(require(path.join('../', 'package.json')).version, '-v, --version')
     .option('-c, --config <location>', 'Set path for package.json to be introspected, uses cwd as default')
     .option('-p, --production', 'Scan for production vulnerabilities only')
     .option('-q, --quiet', 'No reporting output')
     .option('-o, --output <file>', 'Pathname of the output file, will write to stdout if not given')
+    .option('-t, --title <title>', 'The title for the badge', 'vulnerabilities')
     .parse(process.argv)
-  cb(program)
+  cb(commandProgram)
 }
 
 async function main (program = {}, displayFunction) {
@@ -60,7 +61,7 @@ async function main (program = {}, displayFunction) {
   const prodVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, depKeys), 0)
   const devVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, devDepKeys), 0)
   const sumVulnerabilities = program.production ? prodVulnerabilities : prodVulnerabilities + devVulnerabilities
-  badgeUp('vulnerabilities', String(sumVulnerabilities), determineColor(prodVulnerabilities, devVulnerabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnerabilities, reportToTerminal, program.quiet, displayFunction))
+  badgeUp(program.title || 'vulnerabilities', String(sumVulnerabilities), determineColor(prodVulnerabilities, devVulnerabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnerabilities, reportToTerminal, program.quiet, displayFunction))
 }
 
 module.exports = {parseArgs, main}
