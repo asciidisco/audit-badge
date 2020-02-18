@@ -13,17 +13,17 @@ function loadPackageInfo (location = null) {
   return require(path.join(location.replace('package.json', ''), 'package.json'))
 }
 
-function determineColor (prodVulnarabilities, devVulnarabilities, production) {
-  if (prodVulnarabilities > 0) return '#FF0000'
-  if (!production && devVulnarabilities > 0) return '#FFFF00'
+function determineColor (prodVulnerabilities, devVulnerabilities, production) {
+  if (prodVulnerabilities > 0) return '#FF0000'
+  if (!production && devVulnerabilities > 0) return '#FFFF00'
   return '#32CD32'
 }
 
-function writeBadgeFile (dest, sumVulnarabilities, cb, quiet, displayFunction, error, svg) {
+function writeBadgeFile (dest, sumVulnerabilities, cb, quiet, displayFunction, error, svg) {
   if (error) return !quiet ? cb(error, null) : ''
   try {
     !dest ? displayFunction(svg) : fs.writeFileSync(dest, svg)
-    return !quiet ? cb(null, {dest, sumVulnarabilities, displayFunction}) : ''
+    return !quiet ? cb(null, {dest, sumVulnerabilities, displayFunction}) : ''
   } catch (fsError) {
     return !quiet ? cb(fsError, null) : ''
   }
@@ -32,7 +32,7 @@ function writeBadgeFile (dest, sumVulnarabilities, cb, quiet, displayFunction, e
 function reportToTerminal (err, report) {
   const displayFunction = report !== null && report.displayFunction ? report.displayFunction : nout
   if (err) return console.error(err)
-  if (report !== null && report.dest) displayFunction(`Found ${report.sumVulnarabilities} vulnarabilities`)
+  if (report !== null && report.dest) displayFunction(`Found ${report.sumVulnerabilities} vulnerabilities`)
   if (report !== null && report.dest) displayFunction(`Badge SVG written to: ${report.dest}`)
 }
 
@@ -41,7 +41,7 @@ function parseArgs (cb) {
     .command('audit-badge')
     .version(require(path.join('../', 'package.json')).version, '-v, --version')
     .option('-c, --config <location>', 'Set path for package.json to be introspected, uses cwd as default')
-    .option('-p, --production', 'Scan for production vulnarabilities only')
+    .option('-p, --production', 'Scan for production vulnerabilities only')
     .option('-q, --quiet', 'No reporting output')
     .option('-o, --output <file>', 'Pathname of the output file, will write to stdout if not given')
     .parse(process.argv)
@@ -55,12 +55,12 @@ async function main (program = {}, displayFunction) {
   const jsonReport = JSON.parse(rawReport.report)
   const depKeys = Object.keys(application.dependencies)
   const devDepKeys = Object.keys(application.devDependencies)
-  const vulnarablePackages = [].concat(...jsonReport.actions.map(action => action.resolves.map(item => item.path.split('>')[0])))
-  const vulnarabilitiesCounter = (deps, accumulator, item) => deps.includes(item) ? accumulator + 1 : accumulator
-  const prodVulnarabilities = vulnarablePackages.reduce(vulnarabilitiesCounter.bind(null, depKeys), 0)
-  const devVulnarabilities = vulnarablePackages.reduce(vulnarabilitiesCounter.bind(null, devDepKeys), 0)
-  const sumVulnarabilities = program.production ? prodVulnarabilities : prodVulnarabilities + devVulnarabilities
-  badgeUp('vulnarabilities', String(sumVulnarabilities), determineColor(prodVulnarabilities, devVulnarabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnarabilities, reportToTerminal, program.quiet, displayFunction))
+  const vulnerablePackages = [].concat(...jsonReport.actions.map(action => action.resolves.map(item => item.path.split('>')[0])))
+  const vulnerabilitiesCounter = (deps, accumulator, item) => deps.includes(item) ? accumulator + 1 : accumulator
+  const prodVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, depKeys), 0)
+  const devVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, devDepKeys), 0)
+  const sumVulnerabilities = program.production ? prodVulnerabilities : prodVulnerabilities + devVulnerabilities
+  badgeUp('vulnerabilities', String(sumVulnerabilities), determineColor(prodVulnerabilities, devVulnerabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnerabilities, reportToTerminal, program.quiet, displayFunction))
 }
 
 module.exports = {parseArgs, main}
