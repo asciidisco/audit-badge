@@ -50,18 +50,22 @@ function parseArgs (cb) {
 }
 
 async function main (program = {}, displayFunction) {
-  displayFunction = displayFunction || nout
-  const application = loadPackageInfo(program.config)
-  const rawReport = await report({reporter: 'json'})
-  const jsonReport = JSON.parse(rawReport.report)
-  const depKeys = Object.keys(application.dependencies)
-  const devDepKeys = Object.keys(application.devDependencies)
-  const vulnerablePackages = [].concat(...jsonReport.actions.map(action => action.resolves.map(item => item.path.split('>')[0])))
-  const vulnerabilitiesCounter = (deps, accumulator, item) => deps.includes(item) ? accumulator + 1 : accumulator
-  const prodVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, depKeys), 0)
-  const devVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, devDepKeys), 0)
-  const sumVulnerabilities = program.production ? prodVulnerabilities : prodVulnerabilities + devVulnerabilities
-  badgeUp(program.title || 'vulnerabilities', String(sumVulnerabilities), determineColor(prodVulnerabilities, devVulnerabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnerabilities, reportToTerminal, program.quiet, displayFunction))
+  try {
+    displayFunction = displayFunction || nout
+    const application = loadPackageInfo(program.config)
+    const rawReport = await report({reporter: 'json'})
+    const jsonReport = JSON.parse(rawReport.report)
+    const depKeys = Object.keys(application.dependencies)
+    const devDepKeys = Object.keys(application.devDependencies)
+    const vulnerablePackages = [].concat(...jsonReport.actions.map(action => action.resolves.map(item => item.path.split('>')[0])))
+    const vulnerabilitiesCounter = (deps, accumulator, item) => deps.includes(item) ? accumulator + 1 : accumulator
+    const prodVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, depKeys), 0)
+    const devVulnerabilities = vulnerablePackages.reduce(vulnerabilitiesCounter.bind(null, devDepKeys), 0)
+    const sumVulnerabilities = program.production ? prodVulnerabilities : prodVulnerabilities + devVulnerabilities
+    await badgeUp(program.title || 'vulnerabilities', String(sumVulnerabilities), determineColor(prodVulnerabilities, devVulnerabilities, program.production), writeBadgeFile.bind(null, program.output, sumVulnerabilities, reportToTerminal, program.quiet, displayFunction))
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 module.exports = {parseArgs, main}
