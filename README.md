@@ -1,6 +1,6 @@
 # audit-badge
 
-Generates a badge with the number of vulnarable packages in your `package.json`
+Generates a badge with the number of vulnerable packages in your `package.json`
 
 ## Installing
 
@@ -33,7 +33,7 @@ $ audit-badge -h
 
     -v, --version            output the version number
     -c, --config <location>  Set path for package.json to be introspected, uses cwd as default
-    -p, --production         Scan for production vulnarabilities only
+    -p, --production         Scan for production vulnerabilities only
     -q, --quiet              No reporting output
     -o, --output <file>      Pathname of the output file, will write to stdout if not given
     -h, --help               output usage information
